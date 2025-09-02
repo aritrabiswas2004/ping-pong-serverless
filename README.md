@@ -44,6 +44,8 @@ Changed Deployment and Service to Knative Service and applied all required with
 kubectl apply -f ping-pong/volumes/ && kubectl apply -f log-output/manifests/
 ```
 
+Since `log-output` wasn't the application to make serverless, the original deployment and configmap persists.
+
 This successfully deployed the `log-output` application to the cluster.
 
 ![log-op](./images/with-log-output.png)
