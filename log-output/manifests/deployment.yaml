@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: log-output-app
+  namespace: exercises
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: log-output-app
+  template:
+    metadata:
+      labels:
+        app: log-output-app
+    spec:
+      volumes:
+        - name: persistent-log-volume
+          persistentVolumeClaim:
+            claimName: log-ping-claim
+        - name: config
+          configMap:
+            name: log-output-configmap
+            items:
+              - key: "information.txt"
+                path: "information.txt"
+      containers:
+        - name: log-writer
+          image: aritrabb/log-writer:latest
+          volumeMounts:
+            - name: persistent-log-volume
+              mountPath: /logs
+
+        - name: log-reader
+          image: aritrabb/log-reader:latest
+          readinessProbe:
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            httpGet:
+              path: /healthz
+              port: 8080
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: persistent-log-volume
+              mountPath: /logs
+            - name: config
+              mountPath: /config
+              readOnly: true
+          env:
+            - name: message
+              valueFrom:
+                configMapKeyRef:
+                  name: log-output-configmap
+                  key: MESSAGE
+            - name: MYPORT
+              value: "8080"

@@ -1,0 +1,15 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: my-ping-pong
+  namespace: exercises
+spec:
+  template:
+    spec:
+      containers:
+      - image: aritrabb/ping-pong
+        ports:
+        - containerPort: 8080
+        env:
+          - name: MYPORT
+            value: "8080"
